@@ -14,8 +14,11 @@ import javafx.animation.TranslateTransition;
 import javafx.application.Application;
 import javafx.geometry.Point2D;
 import javafx.scene.Scene;
+import javafx.scene.control.Button;
 import javafx.scene.layout.BorderPane;
+import javafx.scene.layout.HBox;
 import javafx.scene.layout.Pane;
+import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Circle;
 import javafx.scene.shape.Ellipse;
@@ -45,11 +48,11 @@ public class Lab07_Daniel extends Application{
         final int ANIMATION_POS_X = 50, ANIMATION_POS_Y = 100, ANIMATION_SIZE_X = 400, ANIMATION_SIZE_Y = 300;
         final int ANIMATION_POS_RIGHT = ANIMATION_POS_X + ANIMATION_SIZE_X, ANIMATION_POS_BOTTOM = ANIMATION_POS_Y + ANIMATION_SIZE_Y;
         final int ELLIPSE_POS_X = ANIMATION_POS_X + ANIMATION_SIZE_X/2, ELLIPSE_POS_Y = ANIMATION_POS_Y + ANIMATION_SIZE_Y/2;
-        final int ELLIPSE_SIZE_X = 20, ELLIPSE_SIZE_Y = 35;
+        final int ELLIPSE_SIZE_X = 35, ELLIPSE_SIZE_Y = 20;
         final int ANIMATION_DURATION = 10;
         
         BorderPane root = new BorderPane();
-        
+        VBox rootVBox = new VBox();
         Pane animationRoot = new Pane();
         
         
@@ -82,7 +85,7 @@ public class Lab07_Daniel extends Application{
         pathTransition.setRate(-1);
         pathTransition.setDuration(Duration.seconds(ANIMATION_DURATION));
         pathTransition.setCycleCount(Animation.INDEFINITE);
-        pathTransition.play();
+        //pathTransition.play();
         
         //Ellipse
         Ellipse ellipse = new Ellipse(ELLIPSE_POS_X, ELLIPSE_POS_Y, ELLIPSE_SIZE_X, ELLIPSE_SIZE_Y);
@@ -93,9 +96,9 @@ public class Lab07_Daniel extends Application{
         ScaleTransition scaleTrans = new ScaleTransition();
         RotateTransition rotTrans = new RotateTransition();
         TranslateTransition tranTrans = new TranslateTransition();
-        final Transition[] TRANSITIONS = {fadeTrans, scaleTrans, rotTrans, tranTrans};
+        final Transition[] TRANSITIONS = {fadeTrans, scaleTrans, rotTrans, tranTrans, pathTransition};
         
-        for (int i = 0; i < 4; i++) {
+        for (int i = 0; i < 5; i++) {
             Transition transition = TRANSITIONS[i];
             transition.setCycleCount(Animation.INDEFINITE);
 
@@ -113,22 +116,45 @@ public class Lab07_Daniel extends Application{
         scaleTrans.setDuration(Duration.seconds(ANIMATION_DURATION / 4));
         scaleTrans.setNode(ellipse);
         scaleTrans.setFromY(1);
-        scaleTrans.setToY(.75);
+        scaleTrans.setFromX(1);
+        scaleTrans.setToY(2);
+        scaleTrans.setToX(2);
         
         tranTrans.setDuration(Duration.seconds(ANIMATION_DURATION / 4));
         tranTrans.setNode(ellipse);
-        tranTrans.setFromY(1);
-        tranTrans.setToY(.75);
+        tranTrans.setFromY(ELLIPSE_POS_Y * 0.5);
+        tranTrans.setToY(1);
         
         for (int i = 0; i < 4; i++) {
             Transition transition = TRANSITIONS[i];
             transition.setCycleCount(Animation.INDEFINITE);
-            transition.play();
-        }
 
+        }
         
+        //Set buttons
+        HBox buttonsHBox = new HBox();
+        Button startButton = new Button("Start");
+        startButton.setOnAction(event -> {
+            for (Transition transition : TRANSITIONS) { 
+                transition.play();
+            }
+        });
+        Button resetButton = new Button("Reset");
+        resetButton.setOnAction(event -> {
+            for (Transition transition : TRANSITIONS) {
+                transition.playFromStart();
+            }
+        });
+        Button exitButton = new Button("Exit");
+        exitButton.setOnAction(event -> {
+            stage.close();
+        });
+        
+        
+        buttonsHBox.getChildren().addAll(startButton, resetButton, exitButton);
         animationRoot.getChildren().addAll(pathRect, circle, ellipse);
-        root.getChildren().addAll(animationRoot);
+        rootVBox.getChildren().addAll(animationRoot, buttonsHBox);
+        root.getChildren().addAll(rootVBox);
         Scene scene = new Scene(root, SCENE_WIDTH, SCENE_HEIGHT);
         stage.setScene(scene);
         stage.show();
