@@ -48,6 +48,7 @@ public class Lab07_Daniel extends Application{
         final int ELLIPSE_SIZE_X = 35, ELLIPSE_SIZE_Y = 20;
         final int ANIMATION_DURATION = 10;
         final int BUTTONS_FONT_SIZE = 25;
+        final double[] TRANSITION_DELAYS = {0, (float) ANIMATION_DURATION * .25, (float) ANIMATION_DURATION * .5, (float) ANIMATION_DURATION * .75, 0}; //{fade, scale, rotate, translate, pathT}
         BorderPane root = new BorderPane();
         VBox rootVBox = new VBox();
         Pane animationRoot = new Pane();
@@ -75,13 +76,12 @@ public class Lab07_Daniel extends Application{
         path.getElements().add(new ClosePath());
        
         Circle circle = new Circle(ANIMATION_POS_X, ANIMATION_POS_Y, 5);
-        System.out.println(path.getElements());
         
         pathTransition.setPath(path);
         pathTransition.setNode(circle); 
         pathTransition.setRate(1);
         pathTransition.setDuration(Duration.seconds(ANIMATION_DURATION));
-        pathTransition.setCycleCount(Animation.INDEFINITE);
+        pathTransition.setCycleCount(1);
         //pathTransition.play();
         
         //Ellipse
@@ -97,50 +97,60 @@ public class Lab07_Daniel extends Application{
         
         for (int i = 0; i < 5; i++) {
             Transition transition = TRANSITIONS[i];
-            transition.setCycleCount(Animation.INDEFINITE);
+            transition.setCycleCount(1);
 
         }
-        fadeTrans.setDuration(Duration.seconds(ANIMATION_DURATION));
+        fadeTrans.setDuration(Duration.seconds(ANIMATION_DURATION/4));
         fadeTrans.setNode(ellipse);
         fadeTrans.setFromValue(1);
         fadeTrans.setToValue(0.25);
         
-        rotTrans.setDuration(Duration.seconds(ANIMATION_DURATION));
+        rotTrans.setDuration(Duration.seconds(ANIMATION_DURATION/4));
         rotTrans.setNode(ellipse);
         rotTrans.setByAngle(360);
-        rotTrans.setCycleCount(100);
         
-        scaleTrans.setDuration(Duration.seconds(ANIMATION_DURATION));
+        scaleTrans.setDuration(Duration.seconds(ANIMATION_DURATION/4));
         scaleTrans.setNode(ellipse);
         scaleTrans.setFromY(1);
         scaleTrans.setFromX(1);
         scaleTrans.setToY(2);
         scaleTrans.setToX(2);
         
-        tranTrans.setDuration(Duration.seconds(ANIMATION_DURATION));
+        tranTrans.setDuration(Duration.seconds(ANIMATION_DURATION/4));
         tranTrans.setNode(ellipse);
-        tranTrans.setFromY(ELLIPSE_POS_Y * 0.5);
-        tranTrans.setToY(1);
-        
-        for (int i = 0; i < 4; i++) {
-            Transition transition = TRANSITIONS[i];
-            transition.setCycleCount(Animation.INDEFINITE);
+        tranTrans.setFromY(1);
+        tranTrans.setToY(ELLIPSE_POS_Y * 0.5);
 
-        }
-        
         //Set buttons
         BorderPane buttonsPane = new BorderPane();
         HBox buttonsHBox = new HBox();
         Button startButton = new Button("Start");
         startButton.setOnAction(event -> {
-            for (Transition transition : TRANSITIONS) { 
+            for (int i = 0; i < TRANSITIONS.length; i++) { 
+                Transition transition = TRANSITIONS[i];
+                transition.setDelay(Duration.seconds(TRANSITION_DELAYS[i]));
                 transition.play();
             }
         });
         startButton.setFont(new Font(BUTTONS_FONT_SIZE));
+        
+        //Connect closing when animation is over
+        pathTransition.setOnFinished(e -> {
+            stage.close();
+        });
+        
         Button resetButton = new Button("Reset");
         resetButton.setOnAction(event -> {
             for (Transition transition : TRANSITIONS) {
+               
+                //Reset properties of ellipse (position, rotation, transparency, scale)
+                ellipse.setTranslateX(0);
+                ellipse.setTranslateY(0);
+                ellipse.setRotate(0);
+                ellipse.setOpacity(1);
+                ellipse.setScaleX(1);
+                ellipse.setScaleY(1);
+                transition.stop();
                 transition.playFrom(Duration.ZERO);
             }
         });
