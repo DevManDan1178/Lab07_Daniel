@@ -3,6 +3,7 @@ package lab07_daniel;
 
 import javafx.animation.Animation;
 import javafx.animation.FadeTransition;
+import javafx.animation.Interpolator;
 import javafx.animation.PathTransition;
 import javafx.animation.RotateTransition;
 import javafx.animation.ScaleTransition;
@@ -46,7 +47,7 @@ public class Lab07_Daniel extends Application{
         final int ANIMATION_POS_RIGHT = ANIMATION_POS_X + ANIMATION_SIZE_X, ANIMATION_POS_BOTTOM = ANIMATION_POS_Y + ANIMATION_SIZE_Y;
         final int ELLIPSE_POS_X = ANIMATION_POS_X + ANIMATION_SIZE_X/2, ELLIPSE_POS_Y = ANIMATION_POS_Y + ANIMATION_SIZE_Y/2;
         final int ELLIPSE_SIZE_X = 35, ELLIPSE_SIZE_Y = 20;
-        final int ANIMATION_DURATION = 10;
+        final double ANIMATION_DURATION = 10;
         final int BUTTONS_FONT_SIZE = 25;
         final double[] TRANSITION_DELAYS = {0, (float) ANIMATION_DURATION * .25, (float) ANIMATION_DURATION * .5, (float) ANIMATION_DURATION * .75, 0}; //{fade, scale, rotate, translate, pathT}
         BorderPane root = new BorderPane();
@@ -81,6 +82,7 @@ public class Lab07_Daniel extends Application{
         pathTransition.setNode(circle); 
         pathTransition.setRate(1);
         pathTransition.setDuration(Duration.seconds(ANIMATION_DURATION));
+        pathTransition.setInterpolator(Interpolator.LINEAR);
         pathTransition.setCycleCount(1);
         //pathTransition.play();
         
@@ -118,20 +120,13 @@ public class Lab07_Daniel extends Application{
         
         tranTrans.setDuration(Duration.seconds(ANIMATION_DURATION/4));
         tranTrans.setNode(ellipse);
-        tranTrans.setFromY(1);
-        tranTrans.setToY(ELLIPSE_POS_Y * 0.5);
+        tranTrans.setByY(-50);
 
         //Set buttons
         BorderPane buttonsPane = new BorderPane();
         HBox buttonsHBox = new HBox();
         Button startButton = new Button("Start");
-        startButton.setOnAction(event -> {
-            for (int i = 0; i < TRANSITIONS.length; i++) { 
-                Transition transition = TRANSITIONS[i];
-                transition.setDelay(Duration.seconds(TRANSITION_DELAYS[i]));
-                transition.play();
-            }
-        });
+
         startButton.setFont(new Font(BUTTONS_FONT_SIZE));
         
         //Connect closing when animation is over
@@ -140,18 +135,26 @@ public class Lab07_Daniel extends Application{
         });
         
         Button resetButton = new Button("Reset");
+        resetButton.setDisable(true);
         resetButton.setOnAction(event -> {
             for (Transition transition : TRANSITIONS) {
                
                 //Reset properties of ellipse (position, rotation, transparency, scale)
-                ellipse.setTranslateX(0);
                 ellipse.setTranslateY(0);
                 ellipse.setRotate(0);
                 ellipse.setOpacity(1);
                 ellipse.setScaleX(1);
                 ellipse.setScaleY(1);
                 transition.stop();
-                transition.playFrom(Duration.ZERO);
+                transition.playFromStart();
+            }
+        });
+        startButton.setOnAction(event -> {
+            resetButton.setDisable(false);
+            for (int i = 0; i < TRANSITIONS.length; i++) { 
+                Transition transition = TRANSITIONS[i];
+                transition.setDelay(Duration.seconds(TRANSITION_DELAYS[i]));
+                transition.play();
             }
         });
         resetButton.setFont(new Font(BUTTONS_FONT_SIZE));
